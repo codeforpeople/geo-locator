@@ -19,6 +19,9 @@ android {
 }
 
 dependencies {
+    compile files('libs/json-org.jar')
+    compile files('libs/WebSocket.jar')
+    compile files('libs/socket.io.jar')
     compile 'com.google.android.gms:play-services:+'
     compile 'com.android.support:appcompat-v7:+'
     compile 'com.android.support:support-v4:19.0.0'

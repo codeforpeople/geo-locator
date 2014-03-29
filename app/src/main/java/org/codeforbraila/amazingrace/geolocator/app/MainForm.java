@@ -21,6 +21,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
 
+import java.net.MalformedURLException;
+
+import io.socket.IOAcknowledge;
+import io.socket.IOCallback;
+import io.socket.SocketIO;
+import io.socket.SocketIOException;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -71,6 +78,9 @@ public class MainForm extends Activity implements GooglePlayServicesClient.Conne
 
     private LocationClient _locationClient;
     private LocationRequest _locationRequest;
+
+    SocketIO _socket;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,8 +151,8 @@ public class MainForm extends Activity implements GooglePlayServicesClient.Conne
 
         _locationRequest = LocationRequest.create();
         _locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        _locationRequest.setInterval(500);
-        _locationRequest.setFastestInterval(100);
+        _locationRequest.setInterval(1000);
+        _locationRequest.setFastestInterval(500);
 
         // Check for location services
         _locationClient = new LocationClient(this, this, this);
@@ -212,6 +222,43 @@ public class MainForm extends Activity implements GooglePlayServicesClient.Conne
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         _locationClient.requestLocationUpdates(_locationRequest, this);
         _targetLocation = _locationClient.getLastLocation();
+
+        try {
+            _socket = new SocketIO("http://192.168.1.68:3000");
+            _socket.connect(new IOCallback() {
+                @Override
+                public void onDisconnect() {
+
+                }
+
+                @Override
+                public void onConnect() {
+                    Log.d("Socket.io", "Connected!");
+                }
+
+                @Override
+                public void onMessage(String s, IOAcknowledge ioAcknowledge) {
+
+                }
+
+                @Override
+                public void onMessage(JSONObject jsonObject, IOAcknowledge ioAcknowledge) {
+
+                }
+
+                @Override
+                public void on(String s, IOAcknowledge ioAcknowledge, Object... objects) {
+
+                }
+
+                @Override
+                public void onError(SocketIOException e) {
+
+                }
+            });
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -230,6 +277,7 @@ public class MainForm extends Activity implements GooglePlayServicesClient.Conne
             data.accumulate("lat", _currentLocation.getLatitude());
             data.accumulate("lng", _currentLocation.getLongitude());
             Log.d("Data", data.toString());
+            _socket.emit("locationdata", data);
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -251,6 +299,6 @@ public class MainForm extends Activity implements GooglePlayServicesClient.Conne
 
     @Override
     public void onDisconnected() {
-
+        _socket.disconnect();
     }
 }
