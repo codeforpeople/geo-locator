@@ -276,6 +276,7 @@ public class MainForm extends Activity implements GooglePlayServicesClient.Conne
             JSONObject data = new JSONObject();
             data.accumulate("lat", _currentLocation.getLatitude());
             data.accumulate("lng", _currentLocation.getLongitude());
+            data.accumulate("accuracy", _currentLocation.getAccuracy());
             Log.d("Data", data.toString());
             _socket.emit("locationdata", data);
         } catch (JSONException ex) {
