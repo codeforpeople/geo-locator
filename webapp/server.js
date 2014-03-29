@@ -19,13 +19,11 @@ server.listen(3000, function () {
 });
 
 io.listen(server).sockets.on('connection', function (socket) {
-	socket.on('locationdata', function (data) {
-		socket.emit('newposition', { lat: data.lat, lng: data.lng });
-	});
+	var that = this;
+	socket.join('location');
 
-	app.post('/report', function (req, res) {
-		console.log(req.body);
-		res.end(0);
+	socket.on('locationdata', function (data) {
+		that.in('location').emit('newposition', { lat: data.lat, lng: data.lng });
 	});
 
 	socket.on('message', function (data) {

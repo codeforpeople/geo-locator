@@ -4,9 +4,9 @@ require(['map', 'client'], function (map, client) {
 		
 		console.log('Connected to the server!');
 
-		client.sendStatus('Connected!');
 		client.onPositionUpdate(function (data) {
-			console.log(data);
+			data.accuracy = 0;
+			map.addPosition(data);
 		});
 	});
 });
